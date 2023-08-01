@@ -21,6 +21,9 @@ const productoService = {
     eliminar: (id) => {
         return apiService.delete(`/producto/${id}`)
     },
+    actualizarImagen: (id, data) => {
+        return apiService.post(`/producto/${id}/actualizar-imagen`, data);
+    }
 
 }
 

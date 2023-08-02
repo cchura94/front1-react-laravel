@@ -14,15 +14,25 @@ const Producto = () => {
   const [producto, setProducto] = useState({ nombre: "", precio: 0, stock: 0, descripcion: "", categoria_id: "" })
   const [imagen, setImagen] = useState(null)
 
+  const [total, setTotal] = useState(0)
+  const [itemPerPage, setitemPerPage] = useState(5)
+  const [page, setPage] = useState(1)
+  const [buscar, setBuscar] = useState('')
+
   useEffect(() => {
     listarProductos();
     listarCategorias()
   }, [])
 
-  const listarProductos = async () => {
-    const { data } = await productoService.listar()
+  const listarProductos = async (p=1, lim=5) => {
+    const { data } = await productoService.listar(p, lim);
     setProductos(data.data);
+    setTotal(data.total)
+    setPage(p)
+
   }
+
+  
 
   const listarCategorias = async () => {
     const { data } = await categoriaService.listarCategorias()
@@ -68,6 +78,13 @@ const Producto = () => {
 
   }
 
+  const funBuscar = async () => {
+     const {data}= await productoService.listarBuscar(buscar)
+     setProductos(data.data);
+    setTotal(data.total)
+    setPage(p)
+  }
+
   const abrirModalImagen = (prod) => {
     setProducto(prod)
     setModalOpenImagen(true)
@@ -107,6 +124,7 @@ const Producto = () => {
     console.log(JSON.stringify(prod))
 
     const data = prod
+    
 
     const doc = new jsPDF();
 
@@ -127,11 +145,14 @@ const Producto = () => {
     doc.save('reporte_producto.pdf');
 
   }
+  
 
   return (<div className="container mx-auto p-8">
 
     <button className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded" onClick={() => setModalOpen(true)}>Nuevo Producto</button>
-
+  <input type="text" className="right" onChange={(e)=> setBuscar(e.target.value)} /> 
+  <button className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded" onClick={() => funBuscar()}>Buscar Producto</button>
+  
     <table className="table-auto w-full">
       <thead>
         <tr>
@@ -180,6 +201,32 @@ const Producto = () => {
         ))}
       </tbody>
     </table>
+
+    <div className="flex justify-center mt-4">
+      <nav className="inline-flex rouded-md shadow">
+          <button className="py-2 px-4 bg-gray-200 text-gray-500 rounded-l-md hover:bg-gray-300"
+                  onClick={() => listarProductos(page - 1)}
+                  disabled={page == 1}>
+            anterior
+          </button>
+          {total > itemPerPage && (
+            <div className="flex">
+              {Array.from({length: Math.ceil(total / itemPerPage)}).map((_, index) => (
+                <button key={index} className={`${page == index + 1 ? 'bg-blue-500 text-white':'bg-gray-200 text-gray-700'} py-2 px-4 mx-1 rounded-md focus:outline-none`}
+                        onClick={() => listarProductos(index+1)}>{index + 1}
+                </button>
+              ))}
+            </div>
+
+          )}
+
+          <button className="py-2 px-4 bg-gray-200 text-gray-500 rounded-r-md hover:bg-gray-300"
+                  onClick={() => listarProductos(page + 1)}
+                  disabled={page == Math.ceil(total / itemPerPage)}>
+            siguiente
+          </button>
+      </nav>
+    </div>
 
     <Modal modalOpen={modalOpen} setModalOpen={resetData}>
       <form onSubmit={(e) => { funGuardarProducto(e) }}>

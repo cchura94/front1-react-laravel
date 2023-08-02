@@ -2,8 +2,8 @@ import apiService from "./api";
 
 const productoService = {
 
-    listar: () => {
-        return apiService.get("/producto")
+    listar: (p, limit) => {
+        return apiService.get(`/producto?page=${p}&limit=${limit}`)
     },
 
     guardar: (datos) => {
@@ -23,7 +23,10 @@ const productoService = {
     },
     actualizarImagen: (id, data) => {
         return apiService.post(`/producto/${id}/actualizar-imagen`, data);
-    }
+    },
+    listarBuscar: (q) => {
+        return apiService.get(`/producto?q=${q}`)
+    },
 
 }
 

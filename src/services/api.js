@@ -1,7 +1,7 @@
 import axios from "axios"
 
-const url = "http://127.0.0.1:8000/api";
-
+// const url = "http://127.0.0.1:8000/api";
+const url = "http://54.165.232.7/backend_laravel-react/public/api";
 const api = axios.create({
     baseURL: url,
     timeout: 30000
